@@ -1,5 +1,6 @@
 package io.github.guisofiati;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +13,20 @@ import io.github.guisofiati.domain.Cidade;
 import io.github.guisofiati.domain.Cliente;
 import io.github.guisofiati.domain.Endereco;
 import io.github.guisofiati.domain.Estado;
+import io.github.guisofiati.domain.Pagamento;
+import io.github.guisofiati.domain.PagamentoComBoleto;
+import io.github.guisofiati.domain.PagamentoComCartao;
+import io.github.guisofiati.domain.Pedido;
 import io.github.guisofiati.domain.Produto;
+import io.github.guisofiati.domain.enums.EstadoPagamento;
 import io.github.guisofiati.domain.enums.TipoCliente;
 import io.github.guisofiati.repositories.CategoriaRepository;
 import io.github.guisofiati.repositories.CidadeRepository;
 import io.github.guisofiati.repositories.ClienteRepository;
 import io.github.guisofiati.repositories.EnderecoRepository;
 import io.github.guisofiati.repositories.EstadoRepository;
+import io.github.guisofiati.repositories.PagamentoRepository;
+import io.github.guisofiati.repositories.PedidoRepository;
 import io.github.guisofiati.repositories.ProdutoRepository;
 
 @SpringBootApplication
@@ -36,6 +44,10 @@ public class FullstackApplication implements CommandLineRunner {
 	private ClienteRepository clienteRepository;
 	@Autowired
 	private EnderecoRepository enderecoRepository;
+	@Autowired
+	private PedidoRepository pedidoRepository;
+	@Autowired
+	private PagamentoRepository pagamentoRepository;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(FullstackApplication.class, args);
@@ -93,6 +105,22 @@ public class FullstackApplication implements CommandLineRunner {
 		
 		clienteRepository.saveAll(Arrays.asList(cli1));
 		enderecoRepository.saveAll(Arrays.asList(e1,e2));
-	
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+		
+		Pedido ped1 = new Pedido(null, sdf.parse("30/09/2017 10:32"), cli1, e1);
+		Pedido ped2 = new Pedido(null, sdf.parse("10/10/2017 19:35"), cli1, e2);
+
+		Pagamento pagto1 = new PagamentoComCartao(null, EstadoPagamento.QUITADO, ped1, 6);
+		ped1.setPagamento(pagto1);
+		
+		Pagamento pagto2 = new PagamentoComBoleto(null, EstadoPagamento.PENDENTE, ped2, sdf.parse("20/10/2017 00:00"), null);
+		ped2.setPagamento(pagto2);
+		
+		cli1.getPedidos().addAll(Arrays.asList(ped1, ped2));
+		
+		pedidoRepository.saveAll(Arrays.asList(ped1, ped2));
+		pagamentoRepository.saveAll(Arrays.asList(pagto1, pagto2));
+
 	}
 }
