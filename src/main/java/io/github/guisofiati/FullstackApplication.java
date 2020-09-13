@@ -13,6 +13,7 @@ import io.github.guisofiati.domain.Cidade;
 import io.github.guisofiati.domain.Cliente;
 import io.github.guisofiati.domain.Endereco;
 import io.github.guisofiati.domain.Estado;
+import io.github.guisofiati.domain.ItemPedido;
 import io.github.guisofiati.domain.Pagamento;
 import io.github.guisofiati.domain.PagamentoComBoleto;
 import io.github.guisofiati.domain.PagamentoComCartao;
@@ -25,6 +26,7 @@ import io.github.guisofiati.repositories.CidadeRepository;
 import io.github.guisofiati.repositories.ClienteRepository;
 import io.github.guisofiati.repositories.EnderecoRepository;
 import io.github.guisofiati.repositories.EstadoRepository;
+import io.github.guisofiati.repositories.ItemPedidoRepository;
 import io.github.guisofiati.repositories.PagamentoRepository;
 import io.github.guisofiati.repositories.PedidoRepository;
 import io.github.guisofiati.repositories.ProdutoRepository;
@@ -48,6 +50,8 @@ public class FullstackApplication implements CommandLineRunner {
 	private PedidoRepository pedidoRepository;
 	@Autowired
 	private PagamentoRepository pagamentoRepository;
+	@Autowired
+	private ItemPedidoRepository itemPedidoRepository;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(FullstackApplication.class, args);
@@ -121,6 +125,19 @@ public class FullstackApplication implements CommandLineRunner {
 		
 		pedidoRepository.saveAll(Arrays.asList(ped1, ped2));
 		pagamentoRepository.saveAll(Arrays.asList(pagto1, pagto2));
+		
+		ItemPedido ip1 = new ItemPedido(ped1, p1, 0.00, 1, 2000.00);
+		ItemPedido ip2 = new ItemPedido(ped1, p3, 0.00, 2, 80.00);
+		ItemPedido ip3 = new ItemPedido(ped2, p2, 100.00, 1, 800.00);
+		
+		ped1.getItens().addAll(Arrays.asList(ip1,ip2));
+		ped2.getItens().addAll(Arrays.asList(ip3));
+		
+		p1.getItens().addAll(Arrays.asList(ip1));
+		p2.getItens().addAll(Arrays.asList(ip3));
+		p3.getItens().addAll(Arrays.asList(ip2));
 
+		itemPedidoRepository.saveAll(Arrays.asList(ip1, ip2, ip3));
+		
 	}
 }
