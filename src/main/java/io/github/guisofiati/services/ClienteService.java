@@ -15,11 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 import io.github.guisofiati.domain.Cidade;
 import io.github.guisofiati.domain.Cliente;
 import io.github.guisofiati.domain.Endereco;
+import io.github.guisofiati.domain.enums.Perfil;
 import io.github.guisofiati.domain.enums.TipoCliente;
 import io.github.guisofiati.dto.ClienteDTO;
 import io.github.guisofiati.dto.ClienteNewDTO;
 import io.github.guisofiati.repositories.ClienteRepository;
 import io.github.guisofiati.repositories.EnderecoRepository;
+import io.github.guisofiati.security.UserSS;
+import io.github.guisofiati.services.exceptions.AuthorizationException;
 import io.github.guisofiati.services.exceptions.DataIntegrityException;
 import io.github.guisofiati.services.exceptions.ObjectNotFoundException;
 
@@ -36,6 +39,11 @@ public class ClienteService {
 	private EnderecoRepository enderecoRepository;
 	
 	public Cliente find(Integer id) {
+
+		UserSS user = UserService.authenticated();
+		if (user==null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
+			throw new AuthorizationException("Acesso negado");
+		}
 		 Optional<Cliente> obj = repo.findById(id);
 		return obj.orElseThrow(() -> new ObjectNotFoundException(
 				"Objeto não encontrado! Id: " +id+ ", Tipo: " +Cliente.class.getName()));
